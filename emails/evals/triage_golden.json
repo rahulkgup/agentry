@@ -1,0 +1,12 @@
+{
+  "name": "triage_category",
+  "description": "Expected Classification.category for each fixture email when using emails.evals.stub_triager (offline). Replace this file and point tests at the real triager to measure production quality.",
+  "cases": [
+    { "email_id": "msg_001", "expected_category": "needs_reply" },
+    { "email_id": "msg_002", "expected_category": "newsletter" },
+    { "email_id": "msg_003", "expected_category": "newsletter" },
+    { "email_id": "msg_004", "expected_category": "needs_reply" },
+    { "email_id": "msg_005", "expected_category": "newsletter" },
+    { "email_id": "msg_006", "expected_category": "newsletter" }
+  ]
+}

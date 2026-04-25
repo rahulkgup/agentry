@@ -1,0 +1,29 @@
+# Secrets (shared across all projects in this monorepo)
+.env
+gmail_credentials.json
+gmail_token.json
+*.pem
+
+# Python (matches at any depth so per-project venvs are ignored)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# Editor
+.vscode/
+.idea/
+.DS_Store
+
+# LangGraph local state (checkpointers + long-term store)
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+.langgraph_api/

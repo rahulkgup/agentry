@@ -1,0 +1,10 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "inbox":          "./graphs.py:inbox_graph",
+    "inbox_supervisor":"./graphs.py:inbox_supervisor",
+    "inbox_parallel": "./graphs.py:inbox_parallel",
+    "inbox_review":   "./graphs.py:inbox_review"
+  },
+  "env": ".env"
+}

@@ -1,0 +1,47 @@
+[project]
+name = "agentry"
+version = "0.1.0"
+description = "Personal agentry of small, real LangGraph agents \u2014 learning by building things I'd actually use."
+requires-python = ">=3.11,<3.14"
+
+# All deps for all projects, in one place.
+# Groups them by which project introduced them so it's easy to track.
+dependencies = [
+    # core (every project will use these)
+    "langgraph>=0.2.50",
+    "langchain-openai>=0.2.10",
+    "langchain-core>=0.3.20",
+    "pydantic>=2.9",
+    "python-dotenv>=1.0",
+    "rich>=13.9",
+    "typer>=0.13",
+    # emails project
+    "google-api-python-client>=2.150",
+    "google-auth>=2.35",
+    "google-auth-oauthlib>=1.2",
+    "langgraph-checkpoint-sqlite>=3.0.3",
+    "langgraph-cli[inmem]>=0.4.24",
+    "mcp>=1.27.0",
+    "langchain-mcp-adapters>=0.2.2",
+]
+
+[project.scripts]
+inbox-agent = "emails.inbox_agent.main:app"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "ruff>=0.7",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+# Each project folder is its own top-level package. Add new ones here as you build.
+packages = ["emails"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
