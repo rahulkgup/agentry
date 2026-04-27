@@ -1,14 +1,24 @@
 # agentry
 
-A personal lab of small, real agent projects built on [LangGraph](https://github.com/langchain-ai/langgraph) — learning by building things I'd actually use. Each subfolder is a self-contained app; they all share one `pyproject.toml`, one `.venv`, and one `.env`.
+A hands-on lab for mastering [LangGraph](https://github.com/langchain-ai/langgraph) at the enterprise AI production level.
+
+The goal is to build realistic agent systems that exercise the patterns needed in production: graph control flow, durable state, tool integration, human review, safety boundaries, evals, observability, and deployment discipline. Each subfolder is a self-contained app; they all share one `pyproject.toml`, one `.venv`, and one `.env`.
 
 See [`ideas.md`](./ideas.md) for the running backlog of project ideas.
+
+## Learning goals
+
+- Build agents around explicit graph state, typed inputs, and predictable routing.
+- Practice production controls: retries, fallbacks, approvals, auditability, and safe tool use.
+- Add evals and tests that can run locally and in CI without relying on live LLM calls.
+- Integrate real external systems through APIs, tools, and MCP-style interfaces.
+- Keep each project small enough to understand, but realistic enough to expose enterprise concerns.
 
 ## Projects
 
 | Project | CLI | Description |
 |---|---|---|
-| [`emails/`](./emails/) | `inbox-agent` | Triages unread Gmail and drafts replies in your voice. |
+| [`emails/`](./emails/) | `inbox-agent` | Production-style email triage graph that reads unread Gmail, classifies messages, and drafts replies in your voice without sending. |
 
 ## Setup (one-time)
 

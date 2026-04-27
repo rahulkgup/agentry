@@ -45,3 +45,9 @@ packages = ["emails"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: opt-in tests that spawn subprocesses or hit external services",
+]
+addopts = "-m 'not integration'"
