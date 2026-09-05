@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Sync dependencies
+        run: uv sync -p ${{ matrix.python-version }}
+
+      - name: Lint
+        run: uv run -p ${{ matrix.python-version }} ruff check .
+
+      # No API key, no network: LLM nodes are monkeypatched and the eval
+      # suite runs against a deterministic stub triager. Tests marked
+      # `integration` are excluded by pyproject's default addopts.
+      - name: Test
+        run: uv run -p ${{ matrix.python-version }} pytest -v
