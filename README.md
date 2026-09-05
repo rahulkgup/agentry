@@ -57,6 +57,31 @@ uv run pytest                      # every project
 uv run pytest emails/tests         # one project
 ```
 
+## Tracing
+
+Every graph node is wrapped in an OpenTelemetry span at registration
+(`tracing/__init__.py`, applied in `graph.py`), so a trace shows the full path an
+email took through the graph, not just that the run finished.
+
+Off by default. Set `OTEL_EXPORTER_OTLP_ENDPOINT` to send traces to any OTLP
+collector (Jaeger, Langfuse, etc.) — nothing else changes, and the CLI degrades to
+retry-and-drop rather than failing if the collector isn't reachable.
+
+The gate nodes carry the decision that made them a gate, not just that they ran:
+
+| Node | Attribute | What it means |
+|---|---|---|
+| `triager` | `agent.triage.category`, `agent.triage.urgency` | How the email was classified |
+| `drafter` | `agent.retriage`, `agent.drafter.attempts` | Whether the drafter asked for re-triage, and which attempt this was |
+| `critic` | `agent.critic.verdict` | `ok` or `revise` |
+| `human_review` | `agent.review.outcome` | Whether a human approved the draft |
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+uv run inbox-agent run --dry-run
+# view spans in Jaeger, Langfuse, or any OTLP-compatible backend
+```
+
 ## Adding a project
 
 1. Create the folder, e.g. `recipes/`, with an empty `__init__.py` and your package
