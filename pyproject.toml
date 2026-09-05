@@ -1,7 +1,9 @@
 [project]
 name = "agentry"
 version = "0.1.0"
-description = "Personal agentry of small, real LangGraph agents \u2014 learning by building things I'd actually use."
+description = "Reference implementations of production LangGraph patterns: explicit graph state, human review gates, safe tool access, and offline evals."
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 requires-python = ">=3.11,<3.14"
 
 # All deps for all projects, in one place.
