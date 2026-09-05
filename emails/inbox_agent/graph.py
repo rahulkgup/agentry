@@ -41,6 +41,7 @@ from .agents import (
     triager_node,
 )
 from .config import settings
+from tracing import traced
 from .fakes import fake_critic_node, fake_drafter_node, fake_triager_node
 from .state import InboxState
 from .tools import (
@@ -161,13 +162,13 @@ def build_graph(
     crit = fake_critic_node if settings.fake_llm else critic_node
 
     if parallel:
-        g.add_node("fetch_emails", fetch_emails_node)
-        g.add_node("parallel_triager", parallel_triager_node)
-        g.add_node("build_draft_queue", build_draft_queue_node)
-        g.add_node("pop_next", pop_next_email_node)
-        g.add_node("drafter", drafter_fn, retry=llm_retry)
-        g.add_node("save_draft", save_draft_node)
-        g.add_node("summary", summary_node)
+        g.add_node("fetch_emails", traced("fetch_emails", fetch_emails_node))
+        g.add_node("parallel_triager", traced("parallel_triager", parallel_triager_node))
+        g.add_node("build_draft_queue", traced("build_draft_queue", build_draft_queue_node))
+        g.add_node("pop_next", traced("pop_next", pop_next_email_node))
+        g.add_node("drafter", traced("drafter", drafter_fn), retry=llm_retry)
+        g.add_node("save_draft", traced("save_draft", save_draft_node))
+        g.add_node("summary", traced("summary", summary_node))
         g.add_edge(START, "fetch_emails")
         g.add_conditional_edges("fetch_emails", fan_out_node, ["parallel_triager"])
         g.add_edge("parallel_triager", "build_draft_queue")
@@ -178,10 +179,10 @@ def build_graph(
             {"triager": "drafter", "summary": "summary"},
         )
         if not skip_review:
-            g.add_node("human_review", human_review_node)
+            g.add_node("human_review", traced("human_review", human_review_node))
             g.add_edge("human_review", "save_draft")
         if use_critic:
-            g.add_node("critic", crit, retry=llm_retry)
+            g.add_node("critic", traced("critic", crit), retry=llm_retry)
             g.add_conditional_edges(
                 "drafter",
                 _make_route_drafter_parallel(
@@ -206,30 +207,30 @@ def build_graph(
         g.add_edge("summary", END)
         return g.compile(checkpointer=checkpointer if checkpointer is not None else InMemorySaver(), store=store)
 
-    g.add_node("fetch_emails", fetch_emails_node)
-    g.add_node("pop_next", pop_next_email_node)
-    g.add_node("triager", tri, retry=llm_retry)
+    g.add_node("fetch_emails", traced("fetch_emails", fetch_emails_node))
+    g.add_node("pop_next", traced("pop_next", pop_next_email_node))
+    g.add_node("triager", traced("triager", tri), retry=llm_retry)
 
     if use_supervisor:
-        g.add_node("supervisor", supervisor_node, retry=llm_retry)
-        g.add_node("drafter", drafter_fn, retry=llm_retry)
-        g.add_node("calendar_agent", make_calendar_agent_node(skip_review=skip_review))
+        g.add_node("supervisor", traced("supervisor", supervisor_node), retry=llm_retry)
+        g.add_node("drafter", traced("drafter", drafter_fn), retry=llm_retry)
+        g.add_node("calendar_agent", traced("calendar_agent", make_calendar_agent_node(skip_review=skip_review)))
         g.add_edge("triager", "supervisor")
     else:
-        g.add_node("drafter", drafter_fn, retry=llm_retry)
+        g.add_node("drafter", traced("drafter", drafter_fn), retry=llm_retry)
         g.add_conditional_edges(
             "triager",
             _route_after_triage,
             {"drafter": "drafter", "pop_next": "pop_next"},
         )
 
-    g.add_node("save_draft", save_draft_node)
-    g.add_node("summary", summary_node)
+    g.add_node("save_draft", traced("save_draft", save_draft_node))
+    g.add_node("summary", traced("summary", summary_node))
     if not skip_review:
-        g.add_node("human_review", human_review_node)
+        g.add_node("human_review", traced("human_review", human_review_node))
         g.add_edge("human_review", "save_draft")
     if use_critic:
-        g.add_node("critic", crit, retry=llm_retry)
+        g.add_node("critic", traced("critic", crit), retry=llm_retry)
 
     g.add_edge(START, "fetch_emails")
     g.add_edge("fetch_emails", "pop_next")
