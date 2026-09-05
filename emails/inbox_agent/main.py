@@ -14,11 +14,18 @@ from langgraph.types import Command
 
 from .graph import CHECKPOINT_DB, build_graph, open_graph
 from .state import Classification
+from tracing import configure_tracing
 
 app = typer.Typer(help="Two-agent LangGraph that triages your Gmail and drafts replies.")
 voice_app = typer.Typer(help="Manage long-term voice memory (cross-thread store).")
 app.add_typer(voice_app, name="voice")
 console = Console()
+
+
+@app.callback()
+def _main() -> None:
+    """Turn on OTel tracing if OTEL_EXPORTER_OTLP_ENDPOINT is set. No-op otherwise."""
+    configure_tracing()
 
 VOICE_NAMESPACE = ("voice", "drafts")
 
